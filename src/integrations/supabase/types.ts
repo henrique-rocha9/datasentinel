@@ -842,7 +842,7 @@ export type Database = {
         | "assignment"
         | "attachment"
       investigation_status: "open" | "in_progress" | "closed"
-      metric_source: "manual" | "import" | "api"
+      metric_source: "manual" | "import" | "api" | "demo"
       risk_level: "low" | "medium" | "high"
       risk_transition:
         | "low_to_medium"
@@ -990,7 +990,7 @@ export const Constants = {
         "attachment",
       ],
       investigation_status: ["open", "in_progress", "closed"],
-      metric_source: ["manual", "import", "api"],
+      metric_source: ["manual", "import", "api", "demo"],
       risk_level: ["low", "medium", "high"],
       risk_transition: [
         "low_to_medium",
