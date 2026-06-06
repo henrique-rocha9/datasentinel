@@ -12,4 +12,12 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Pre-bundle @supabase/supabase-js at dev start so the optimizer does not
+    // trigger a mid-flight reload (which surfaces as a transient SSR failure /
+    // "Failed to fetch dynamically imported module" for the start client entry).
+    optimizeDeps: {
+      include: ["@supabase/supabase-js"],
+    },
+  },
 });
