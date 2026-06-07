@@ -47,9 +47,13 @@ function Landing() {
               Design system
             </a>
           </nav>
-          <span className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-            MVP · Module 1
-          </span>
+          <Link
+            to="/auth"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Sign in
+          </Link>
+
         </div>
       </header>
 
@@ -74,16 +78,20 @@ function Landing() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center rounded-md border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
-                Authentication, dashboards, and ML controls arrive in Modules 2–5.
-              </span>
               <Link
-                to="/"
-                className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                to="/auth"
+                className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                View design tokens ↓
+                Open workspace
               </Link>
+              <a
+                href="#workflow"
+                className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              >
+                View workflow ↓
+              </a>
             </div>
+
 
             {/* Risk preview */}
             <div className="mt-12 grid gap-3 sm:grid-cols-4">
