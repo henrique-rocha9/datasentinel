@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 
-export const Route = createFileRoute("/_authenticated/")({
+export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Workspace — Sentinel" }, { name: "robots", content: "noindex" }] }),
   component: AuthedHome,
 });
