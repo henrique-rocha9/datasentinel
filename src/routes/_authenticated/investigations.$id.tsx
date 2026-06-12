@@ -1,8 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+
+import {
+  addInvestigationComment,
+  updateInvestigationStatus,
+} from "@/lib/investigations.functions";
 
 import { StatusBadge } from "@/components/badges/StatusBadge";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -64,18 +70,12 @@ function InvestigationDetail() {
   const canEdit =
     !!inv && (hasAnyRole(["admin"]) || (hasAnyRole(["analyst"]) && inv.assigned_analyst_id === user?.id));
 
+  const updateStatusFn = useServerFn(updateInvestigationStatus);
+  const addCommentFn = useServerFn(addInvestigationComment);
+
   const updateStatus = useMutation({
-    mutationFn: async (next: (typeof STATUSES)[number]) => {
-      const { error } = await supabase.from("investigations").update({ status: next }).eq("id", id);
-      if (error) throw error;
-      await supabase.from("investigation_logs").insert({
-        investigation_id: id,
-        author_id: user?.id,
-        log_type: "status_change",
-        content: `Status → ${next}`,
-        metadata: { to: next },
-      });
-    },
+    mutationFn: (next: (typeof STATUSES)[number]) =>
+      updateStatusFn({ data: { id, status: next } }),
     onSuccess: () => {
       toast.success("Status updated");
       qc.invalidateQueries({ queryKey: ["investigation", id] });
@@ -85,15 +85,7 @@ function InvestigationDetail() {
   });
 
   const addComment = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.from("investigation_logs").insert({
-        investigation_id: id,
-        author_id: user?.id,
-        log_type: "comment",
-        content: comment,
-      });
-      if (error) throw error;
-    },
+    mutationFn: () => addCommentFn({ data: { id, content: comment } }),
     onSuccess: () => {
       setComment("");
       qc.invalidateQueries({ queryKey: ["investigation", id] });
