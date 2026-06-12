@@ -194,7 +194,7 @@ function InvestigationDetail() {
                   </p>
                   <Select
                     value={status}
-                    onValueChange={(v) => updateStatus.mutate(v)}
+                    onValueChange={(v) => updateStatus.mutate(v as (typeof STATUSES)[number])}
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
