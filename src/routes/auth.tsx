@@ -154,7 +154,7 @@ function SignUpForm() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/app`,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
         data: { display_name: displayName },
       },
     });
@@ -191,7 +191,7 @@ function GoogleButton() {
   async function onClick() {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/app",
+      redirect_uri: window.location.origin + "/dashboard",
     });
     if (result.error) {
       setBusy(false);
@@ -200,7 +200,7 @@ function GoogleButton() {
     }
     if (result.redirected) return;
     // session already set
-    window.location.assign("/app");
+    window.location.assign("/dashboard");
   }
   return (
     <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={onClick}>
