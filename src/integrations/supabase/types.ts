@@ -354,6 +354,51 @@ export type Database = {
           },
         ]
       }
+      ml_runs: {
+        Row: {
+          created_at: string
+          error_text: string | null
+          finished_at: string | null
+          id: string
+          metadata: Json
+          model_version: string | null
+          rows_processed: number
+          run_type: Database["public"]["Enums"]["ml_run_type"]
+          started_at: string | null
+          status: Database["public"]["Enums"]["ml_run_status"]
+          triggered_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_text?: string | null
+          finished_at?: string | null
+          id?: string
+          metadata?: Json
+          model_version?: string | null
+          rows_processed?: number
+          run_type: Database["public"]["Enums"]["ml_run_type"]
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ml_run_status"]
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_text?: string | null
+          finished_at?: string | null
+          id?: string
+          metadata?: Json
+          model_version?: string | null
+          rows_processed?: number
+          run_type?: Database["public"]["Enums"]["ml_run_type"]
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ml_run_status"]
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_aggregates: {
         Row: {
           avg_defects: number
@@ -841,8 +886,15 @@ export type Database = {
         | "status_change"
         | "assignment"
         | "attachment"
-      investigation_status: "open" | "in_progress" | "closed"
+      investigation_status:
+        | "open"
+        | "in_progress"
+        | "closed"
+        | "resolved"
+        | "dismissed"
       metric_source: "manual" | "import" | "api" | "demo"
+      ml_run_status: "pending" | "running" | "success" | "failed"
+      ml_run_type: "risk_inference" | "clustering" | "training"
       risk_level: "low" | "medium" | "high"
       risk_transition:
         | "low_to_medium"
@@ -989,8 +1041,16 @@ export const Constants = {
         "assignment",
         "attachment",
       ],
-      investigation_status: ["open", "in_progress", "closed"],
+      investigation_status: [
+        "open",
+        "in_progress",
+        "closed",
+        "resolved",
+        "dismissed",
+      ],
       metric_source: ["manual", "import", "api", "demo"],
+      ml_run_status: ["pending", "running", "success", "failed"],
+      ml_run_type: ["risk_inference", "clustering", "training"],
       risk_level: ["low", "medium", "high"],
       risk_transition: [
         "low_to_medium",
