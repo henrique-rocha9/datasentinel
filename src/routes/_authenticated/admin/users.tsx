@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { PageHeader } from "@/components/shell/PageHeader";
 import { StatusBadge } from "@/components/badges/StatusBadge";
-import { Button } from "@/components/ui/button";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -177,6 +177,3 @@ function RoleSelect({
     </Select>
   );
 }
-
-// Button used so existing import isn't tree-shaken accidentally if blocks restructure later.
-export const _b = Button;
