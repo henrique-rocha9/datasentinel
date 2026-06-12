@@ -61,7 +61,7 @@ export const recordRiskChange = createServerFn({ method: "POST" })
         _prob_high: data.probHigh,
         _confidence: data.confidence,
         _model_version: data.modelVersion,
-        _source_metric_id: data.sourceMetricId ?? null,
+        _source_metric_id: data.sourceMetricId ?? undefined,
       },
     );
     if (error) throw new Error(error.message);
