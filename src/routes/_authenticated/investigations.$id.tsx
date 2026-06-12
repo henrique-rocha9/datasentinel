@@ -65,7 +65,7 @@ function InvestigationDetail() {
     !!inv && (hasAnyRole(["admin"]) || (hasAnyRole(["analyst"]) && inv.assigned_analyst_id === user?.id));
 
   const updateStatus = useMutation({
-    mutationFn: async (next: string) => {
+    mutationFn: async (next: (typeof STATUSES)[number]) => {
       const { error } = await supabase.from("investigations").update({ status: next }).eq("id", id);
       if (error) throw error;
       await supabase.from("investigation_logs").insert({
