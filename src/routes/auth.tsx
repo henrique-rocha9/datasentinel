@@ -35,7 +35,7 @@ function AuthPage() {
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      navigate({ to: redirect ?? "/app", replace: true });
+      navigate({ to: redirect ?? "/dashboard", replace: true });
     }
   }, [loading, isAuthenticated, redirect, navigate]);
 
