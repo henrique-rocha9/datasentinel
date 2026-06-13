@@ -1,36 +1,43 @@
-# Architecture
+# Auditoria de Acessibilidade & Teclado
 
-## Layers
-- **UI / Routes** — `src/routes/**` (file-based). Authenticated routes live
-  under the `_authenticated` layout, which gates access via `supabase.auth.getUser()`.
-- **Shell** — `src/components/shell/AppShell` provides landmarks
-  (`<aside>`, `<header>`, `<main>`), skip link, sidebar nav and topbar.
-- **Feedback primitives** — `EmptyState`, `TableSkeleton`, `RouteError`
-  used by all data routes.
-- **Auth** — `src/hooks/use-auth.tsx` exposes `user`, `session`, `roles`,
-  `hasRole`. Roles come from `public.user_roles`, not the profile.
-- **Server functions** — `src/lib/*.functions.ts`, typed RPC built with
-  `createServerFn` from `@tanstack/react-start`. All gated by
-  `requireSupabaseAuth`; admin mutations additionally check `has_role`.
-- **Database** — Supabase (Postgres) with RLS on every public table.
-  See `DATABASE.md`.
+Auditoria de linha de base realizada no Módulo 8. O escopo é o MVP — WCAG 2.1 AA onde for viável, com refinamentos adiados listados no final.
 
-## Data flow
-1. Browser uses the publishable Supabase client for reads constrained by RLS.
-2. Mutations go through server functions (`useServerFn` + `useMutation`).
-3. Server functions delegate to existing security-definer functions
-   (`fn_record_risk_change`, `fn_record_cluster_change`,
-   `fn_rebuild_aggregates`) instead of writing directly.
-4. Alert auto-resolution happens via the `tg_investigation_resolves_alert`
-   trigger when an investigation moves to `resolved`/`dismissed`.
+## Landmarks
 
-## Error & loading boundaries
-- Root: `__root.tsx` defines `notFoundComponent` and `errorComponent`.
-- Router: `getRouter` registers `defaultErrorComponent` (using
-  `RouteError`) and `defaultNotFoundComponent`.
-- Data routes use `TableSkeleton` while loading and `EmptyState` when empty.
+- `AppShell` renderiza `<aside aria-label="Primary navigation">`, `<header aria-label="Application header">` e `<main id="main-content">`.
+- Um link "Skip to main content" é o primeiro elemento focável em toda página autenticada.
+- Exatamente um `<h1>` por página via `PageHeader`.
 
-## Security
-- RLS enabled on every public table.
-- Role checks always via `has_role(uid, role)` security-definer function.
-- Admin route guard: `/_authenticated/admin` redirects non-admins.
+## Teclado
+
+- Todos os elementos interativos são `<button>`, `<a>`, `<input>` nativos ou primitivas shadcn baseadas em Radix — a ordem de foco segue a ordem do DOM.
+- Os anéis de foco vêm dos tokens de ring do shadcn (`focus-visible:ring-2 focus-visible:ring-ring`); sem sobrescritas de `outline: none`.
+- Diálogos / dropdowns herdam o trapping de foco do Radix e o fechamento com Esc.
+
+## Formulários
+
+- Todo input tem um `<Label htmlFor="...">` associado.
+- Campos obrigatórios usam o atributo nativo `required`.
+- Botões são desabilitados durante o envio e exibem progresso via `Loader2`.
+
+## Cor & contraste
+
+- Superfícies claras/escuras usam tokens semânticos (`--background`, `--foreground`, `--muted`, `--primary`) — sem `text-gray-*` arbitrário sobre branco.
+- Badges de status / risco codificam o estado tanto por cor QUANTO por texto.
+
+## Imagens & ícones
+
+- Ícones decorativos usam `aria-hidden`.
+- Botões apenas com ícone (sair, etc.) incluem rótulos de texto ou `aria-label`.
+
+## Erros & carregamento
+
+- `RouteError` usa `role="alert"`.
+- `TableSkeleton` expõe `role="status"` + `aria-label`.
+- `EmptyState` usa headings semânticos e texto descritivo.
+
+## Lacunas conhecidas (pós-MVP)
+
+- Nenhum teste formal com leitor de tela contra scripts de NVDA / VoiceOver.
+- O comportamento de recolhimento da sidebar no mobile é mínimo — depende de ocultação responsiva em vez de um menu off-canvas completo.
+- Gráficos (`recharts`) herdam os padrões da biblioteca; sem descrições customizadas em formato longo.
