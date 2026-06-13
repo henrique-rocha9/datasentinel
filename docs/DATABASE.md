@@ -1,4 +1,4 @@
-Banco de Dados
+# Banco de Dados
 
 Todas as tabelas vivem no schema `public` com RLS habilitado e `GRANT`s explícitos para `authenticated` e `service_role`.
 
