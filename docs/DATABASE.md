@@ -1,41 +1,41 @@
-# Database
+Banco de Dados
 
-All tables live in the `public` schema with RLS enabled and explicit
-`GRANT`s for `authenticated` and `service_role`.
+Todas as tabelas vivem no schema `public` com RLS habilitado e `GRANT`s explícitos para `authenticated` e `service_role`.
 
-## Inventory
-- `product_families`, `product_models` — catalogue.
-- `product_metrics` — raw ingested metrics per model/date.
-- `product_aggregates` — rolled-up metrics (rebuilt via `fn_rebuild_aggregates`).
+## Inventário
 
-## Risk & clustering
-- `risk_current` — current risk class per model.
-- `risk_history` — change log (written by `fn_record_risk_change`).
-- `cluster_current`, `cluster_history` — failure-mode clusters
-  (`fn_record_cluster_change`).
-- `recommendations` — generated per risk transition.
+- `product_families`, `product_models` — catálogo.
+- `product_metrics` — métricas brutas ingeridas por modelo/data.
+- `product_aggregates` — métricas agregadas (reconstruídas via `fn_rebuild_aggregates`).
 
-## Alerts & investigations
-- `alerts` — open/closed escalations.
-- `investigations` — workflow records; status transitions to
-  `resolved`/`dismissed` auto-close the source alert via
-  `tg_investigation_resolves_alert`.
-- `investigation_logs` — comments and status changes.
+## Risco & clusterização
 
-## ML & ops
-- `ml_runs` — training/inference runs; metrics & artifacts in `metadata`.
-- `import_batches`, `import_errors` — CSV ingestion bookkeeping.
-- `system_logs` — audit trail.
+- `risk_current` — classe de risco atual por modelo.
+- `risk_history` — log de alterações (escrito por `fn_record_risk_change`).
+- `cluster_current`, `cluster_history` — clusters de modos de falha (`fn_record_cluster_change`).
+- `recommendations` — geradas a cada transição de risco.
 
-## Identity & roles
-- `auth.users` (managed by Supabase).
-- `public.profiles` — display profile (created by `handle_new_user` trigger).
-- `public.user_roles (user_id, role app_role)` — roles live ONLY here.
-- `has_role(uid, role)` — SECURITY DEFINER; used by every role-gated policy
-  and server function.
+## Alertas & investigações
+
+- `alerts` — escalonamentos abertos/encerrados.
+- `investigations` — registros de fluxo de trabalho; transições de status para `resolved`/`dismissed` encerram automaticamente o alerta de origem via `tg_investigation_resolves_alert`.
+- `investigation_logs` — comentários e mudanças de status.
+
+## ML & operações
+
+- `ml_runs` — execuções de treinamento/inferência; métricas e artefatos em `metadata`.
+- `import_batches`, `import_errors` — controle de ingestão de CSV.
+- `system_logs` — trilha de auditoria.
+
+## Identidade & papéis
+
+- `auth.users` (gerenciado pelo Supabase).
+- `public.profiles` — perfil de exibição (criado pelo trigger `handle_new_user`).
+- `public.user_roles (user_id, role app_role)` — os papéis vivem APENAS aqui.
+- `has_role(uid, role)` — SECURITY DEFINER; usado por toda política e função de servidor protegida por papel.
 
 ## Triggers
-- `handle_new_user` on `auth.users` → seeds `profiles` and grants default
-  `viewer` role.
-- `tg_touch_updated_at` on mutable tables.
-- `tg_investigation_resolves_alert` on `investigations`.
+
+- `handle_new_user` em `auth.users` → cria registro em `profiles` e concede o papel padrão `viewer`.
+- `tg_touch_updated_at` nas tabelas mutáveis.
+- `tg_investigation_resolves_alert` em `investigations`.
