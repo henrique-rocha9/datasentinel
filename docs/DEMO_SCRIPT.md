@@ -1,27 +1,20 @@
-# Demo Script
+# Script de Demonstração
 
-Run the demo seed migration once; it is idempotent (sentinel:
-`product_families.code = 'DEMO'`).
+Execute a migração de seed da demo uma vez; ela é idempotente (sentinel: `product_families.code = 'DEMO'`).
 
-## 5-minute walkthrough
-1. **Sign in** at `/auth`. Use an admin account (default new users get
-   `viewer`; promote via `/admin/users`).
-2. **Dashboard** (`/dashboard`) — show KPI cards (monitored products, open
-   alerts, investigations) and the recent alerts feed.
-3. **Ranking** (`/ranking`) — sort the 6 demo models by risk.
-4. **Product detail** (`/products/<modelId>`) — open a high-risk model,
-   review aggregates and risk history.
-5. **Investigations** (`/investigations`) — show the open and in-progress
-   investigations seeded by the migration.
-6. **Investigation detail** — add a comment, move status to `resolved`,
-   confirm the linked alert auto-closes (DB trigger).
-7. **Admin → Ingestion** — upload a sample CSV; show batch + error
-   reporting.
-8. **Admin → ML** — trigger a mocked run; open the detail page to inspect
-   metrics/artifacts JSON.
-9. **Admin → Logs** — filter system_logs by action.
-10. **Admin → Users** — switch a user's role.
+## Roteiro de 5 minutos
+
+1. **Faça login** em `/auth`. Use uma conta de admin (novos usuários por padrão recebem `viewer`; promova via `/admin/users`).
+2. **Dashboard** (`/dashboard`) — mostre os cards de KPI (produtos monitorados, alertas abertos, investigações) e o feed de alertas recentes.
+3. **Ranking** (`/ranking`) — ordene os 6 modelos de demonstração por risco.
+4. **Detalhe do produto** (`/products/<modelId>`) — abra um modelo de alto risco, revise os agregados e o histórico de risco.
+5. **Investigações** (`/investigations`) — mostre as investigações abertas e em andamento criadas pela migração.
+6. **Detalhe da investigação** — adicione um comentário, mude o status para `resolved`, confirme que o alerta vinculado é encerrado automaticamente (trigger do banco).
+7. **Admin → Ingestão** — faça upload de um CSV de exemplo; mostre o relatório de lote + erros.
+8. **Admin → ML** — dispare uma execução simulada; abra a página de detalhe para inspecionar o JSON de métricas/artefatos.
+9. **Admin → Logs** — filtre o system_logs por ação.
+10. **Admin → Usuários** — altere o papel de um usuário.
 
 ## Reset
-Re-running the seed migration is a no-op. To force-reset, clear the
-`DEMO` family rows manually and re-run.
+
+Executar a migração de seed novamente não tem efeito (no-op). Para forçar um reset, limpe manualmente as linhas da família `DEMO` e execute novamente.
