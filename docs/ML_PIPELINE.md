@@ -1,24 +1,15 @@
-# ML Pipeline (MVP)
+# Pipeline de ML (MVP)
 
-The MVP ships a mocked pipeline that exercises the full surface without a
-real model server.
+O MVP entrega um pipeline simulado que exercita toda a superfície sem um servidor de modelo real.
 
-## Stages
-1. **Ingest** — CSV upload via `/admin/ingestion` resolves
-   `external_product_id` to `model_id` and writes `product_metrics`.
-   Errors are recorded in `import_errors`, batches in `import_batches`.
-2. **Aggregate** — `fn_rebuild_aggregates` recomputes `product_aggregates`
-   from raw metrics.
-3. **Predict** — risk classes (`low | medium | high`) are recorded via
-   `fn_record_risk_change`, which also updates `risk_history` and may emit
-   alerts and recommendations.
-4. **Cluster** — failure-mode clusters tracked via
-   `fn_record_cluster_change`.
-5. **Investigate** — alerts route to `investigations`; resolution closes
-   the underlying alert through the DB trigger.
+## Etapas
 
-## ML runs
-`/admin/ml` lists `ml_runs`. Triggering a run creates a `success` row with
-randomized accuracy/precision/recall in `metadata`. Detail page shows
-metrics and artifacts JSON. Replacing the trigger with a real worker is a
-post-MVP step.
+1. **Ingestão** — o upload de CSV via `/admin/ingestion` resolve `external_product_id` para `model_id` e grava em `product_metrics`. Erros são registrados em `import_errors`, lotes em `import_batches`.
+2. **Agregação** — `fn_rebuild_aggregates` recalcula `product_aggregates` a partir das métricas brutas.
+3. **Predição** — as classes de risco (`low | medium | high`) são registradas via `fn_record_risk_change`, que também atualiza `risk_history` e pode emitir alertas e recomendações.
+4. **Clusterização** — clusters de modos de falha rastreados via `fn_record_cluster_change`.
+5. **Investigação** — alertas são roteados para `investigations`; a resolução encerra o alerta subjacente através do trigger do banco.
+
+## Execuções de ML
+
+`/admin/ml` lista `ml_runs`. Disparar uma execução cria uma linha `success` com acurácia/precisão/recall randomizados em `metadata`. A página de detalhe mostra o JSON de métricas e artefatos. Substituir o disparo por um worker real é uma etapa pós-MVP.
