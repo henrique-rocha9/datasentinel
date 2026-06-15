@@ -33,7 +33,7 @@ export function SidebarNav() {
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-5">
         <ShieldAlert className="h-5 w-5 text-primary" />
-        <span className="font-display text-lg font-semibold tracking-tight">Sentinel</span>
+        <span className="font-display text-lg font-semibold tracking-tight">Datasentinel</span>
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Primary">
         {PRIMARY.map(({ to, label, icon: Icon }) => (

@@ -19,7 +19,7 @@ import {
 } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Sentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Datasentinel" }, { name: "robots", content: "noindex" }] }),
   component: DashboardPage,
 });
 

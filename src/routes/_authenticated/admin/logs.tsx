@@ -13,7 +13,7 @@ import { fmtDate } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/logs")({
   head: () => ({
-    meta: [{ title: "System Logs — Sentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "System Logs — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: LogsPage,
 });

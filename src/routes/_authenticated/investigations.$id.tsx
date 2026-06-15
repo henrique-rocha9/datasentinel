@@ -32,7 +32,7 @@ import {
 } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/investigations/$id")({
-  head: () => ({ meta: [{ title: "Investigation — Sentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Investigation — Datasentinel" }, { name: "robots", content: "noindex" }] }),
   component: InvestigationDetail,
 });
 

@@ -88,14 +88,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sentinel — Anomaly Detection & Risk Classification" },
+      { title: "Datasentinel — Anomaly Detection & Risk Classification" },
       {
         name: "description",
         content:
           "Industrial anomaly detection and risk classification platform. Ingest product metrics, predict risk, cluster failure modes, investigate.",
       },
-      { name: "author", content: "Sentinel" },
-      { property: "og:title", content: "Sentinel — Anomaly Detection & Risk Classification" },
+      { name: "author", content: "Datasentinel" },
+      { property: "og:title", content: "Datasentinel — Anomaly Detection & Risk Classification" },
       {
         property: "og:description",
         content: "Ingest, predict, cluster, investigate. End-to-end product-risk intelligence.",

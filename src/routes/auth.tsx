@@ -19,8 +19,8 @@ export const Route = createFileRoute("/auth")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
-      { title: "Sign in — Sentinel" },
-      { name: "description", content: "Sign in to Sentinel to monitor product risk and investigate alerts." },
+      { title: "Sign in — Datasentinel" },
+      { name: "description", content: "Sign in to Datasentinel to monitor product risk and investigate alerts." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -54,7 +54,7 @@ function AuthPage() {
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Activity className="h-4 w-4" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight">Sentinel</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Datasentinel</span>
         </Link>
         <div className="relative z-10 max-w-md space-y-4">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -69,7 +69,7 @@ function AuthPage() {
           </p>
         </div>
         <p className="relative z-10 font-mono text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Sentinel
+          © {new Date().getFullYear()} Datasentinel
         </p>
       </aside>
       <main className="flex flex-1 items-center justify-center px-6 py-12">
@@ -79,7 +79,7 @@ function AuthPage() {
               <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <Activity className="h-4 w-4" />
               </span>
-              <span className="font-display text-lg font-semibold tracking-tight">Sentinel</span>
+              <span className="font-display text-lg font-semibold tracking-tight">Datasentinel</span>
             </Link>
           </div>
           <Tabs defaultValue="signin">

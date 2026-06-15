@@ -8,13 +8,13 @@ import { StatusBadge } from "@/components/badges/StatusBadge";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sentinel — Anomaly Detection & Risk Classification" },
+      { title: "Datasentinel — Anomaly Detection & Risk Classification" },
       {
         name: "description",
         content:
-          "Sentinel ingests product metrics, predicts risk, clusters failure modes, and routes alerts into investigations — all in one workspace.",
+          "Datasentinel ingests product metrics, predicts risk, clusters failure modes, and routes alerts into investigations — all in one workspace.",
       },
-      { property: "og:title", content: "Sentinel — Anomaly Detection & Risk Classification" },
+      { property: "og:title", content: "Datasentinel — Anomaly Detection & Risk Classification" },
       {
         property: "og:description",
         content:
@@ -37,7 +37,7 @@ function Landing() {
             >
               <Activity className="h-4 w-4" />
             </span>
-            <span className="font-display text-lg font-semibold tracking-tight">Sentinel</span>
+            <span className="font-display text-lg font-semibold tracking-tight">Datasentinel</span>
           </div>
           <nav aria-label="Primary" className="hidden items-center gap-6 text-sm md:flex">
             <a className="text-muted-foreground hover:text-foreground" href="#workflow">
@@ -72,7 +72,7 @@ function Landing() {
               See risk forming <span className="text-primary">before it costs you</span>.
             </h1>
             <p className="mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-              Sentinel ingests product service metrics, classifies each unit's risk level,
+              Datasentinel ingests product service metrics, classifies each unit's risk level,
               clusters failure modes, and turns escalations into actionable investigations.
               One workspace, one workflow, full audit trail.
             </p>
@@ -204,7 +204,7 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 text-xs text-muted-foreground">
-          <span className="font-mono uppercase tracking-wider">Sentinel · Academic MVP</span>
+          <span className="font-mono uppercase tracking-wider">Datasentinel · Academic MVP</span>
           <span>Module 1 of 8</span>
         </div>
       </footer>
