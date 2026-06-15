@@ -33,7 +33,7 @@ import {
 } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/products/$modelId")({
-  head: () => ({ meta: [{ title: "Product — Sentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Product — Datasentinel" }, { name: "robots", content: "noindex" }] }),
   component: ProductDetailPage,
 });
 

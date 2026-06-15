@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fmtDate, fmtNum, riskClassFromString } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/ranking")({
-  head: () => ({ meta: [{ title: "Ranking — Sentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Ranking — Datasentinel" }, { name: "robots", content: "noindex" }] }),
   component: RankingPage,
 });
 

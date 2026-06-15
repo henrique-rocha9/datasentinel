@@ -31,7 +31,7 @@ import { fmtDate, fmtNum } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/ingestion")({
   head: () => ({
-    meta: [{ title: "Ingestion — Sentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Ingestion — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: IngestionPage,
 });

@@ -22,7 +22,7 @@ import { fmtDate, fmtNum } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/ml")({
   head: () => ({
-    meta: [{ title: "ML Runs — Sentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "ML Runs — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: MlPage,
 });

@@ -22,7 +22,7 @@ import { fmtDate } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   head: () => ({
-    meta: [{ title: "Users — Sentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Users — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: UsersPage,
 });
