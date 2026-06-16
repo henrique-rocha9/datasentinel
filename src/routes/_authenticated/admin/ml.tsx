@@ -27,12 +27,15 @@ export const Route = createFileRoute("/_authenticated/admin/ml")({
   component: MlPage,
 });
 
+const ML_API = "http://localhost:8000";
+
 type RunType = "risk_inference" | "clustering" | "training";
 
 function statusTone(s: string) {
   if (s === "success") return "success" as const;
   if (s === "failed") return "destructive" as const;
   if (s === "running") return "info" as const;
+  if (s === "skipped") return "neutral" as const;
   return "neutral" as const;
 }
 
@@ -57,6 +60,8 @@ function MlPage() {
     mutationFn: async () => {
       const now = new Date().toISOString();
       const { data: u } = await supabase.auth.getUser();
+
+      // 1. Insert run record as "running"
       const { data: ins, error } = await supabase
         .from("ml_runs")
         .insert({
@@ -64,34 +69,47 @@ function MlPage() {
           status: "running",
           started_at: now,
           triggered_by: u.user?.id,
-          model_version: "mock-v1",
+          model_version: "pending",
         })
         .select()
         .single();
       if (error) throw error;
 
-      // Mock processing — close immediately as success with fake metrics.
-      const rows = Math.floor(50 + Math.random() * 450);
+      // 2. Call Python ML API
+      let result: any;
+      try {
+        const resp = await fetch(`${ML_API}/run`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ run_type: runType }),
+        });
+        if (!resp.ok) {
+          const msg = await resp.text();
+          throw new Error(msg);
+        }
+        result = await resp.json();
+      } catch (err: any) {
+        await supabase
+          .from("ml_runs")
+          .update({ status: "failed", finished_at: new Date().toISOString() })
+          .eq("id", ins.id);
+        throw new Error(`ML API error: ${err.message}`);
+      }
+
+      // 3. Persist real results back to Supabase
       await supabase
         .from("ml_runs")
         .update({
-          status: "success",
+          status: result.status,
           finished_at: new Date().toISOString(),
-          rows_processed: rows,
-          metadata: {
-            mock: true,
-            metrics: {
-              accuracy: Number((0.8 + Math.random() * 0.15).toFixed(3)),
-              precision: Number((0.75 + Math.random() * 0.2).toFixed(3)),
-              recall: Number((0.7 + Math.random() * 0.2).toFixed(3)),
-            },
-            artifacts: [{ name: "model.pkl", size_kb: 1240 }],
-          },
+          rows_processed: result.rows_processed,
+          model_version: result.model_version,
+          metadata: result.metadata,
         })
         .eq("id", ins.id);
     },
     onSuccess: () => {
-      toast.success("Mock run completed");
+      toast.success("Run completed");
       qc.invalidateQueries({ queryKey: ["ml_runs"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -102,7 +120,7 @@ function MlPage() {
       <PageHeader
         eyebrow="Admin"
         title="ML operations"
-        description="Trigger and inspect model runs (mocked for MVP)."
+        description="Trigger and inspect model runs."
         actions={
           <div className="flex items-center gap-2">
             <Select value={runType} onValueChange={(v) => setRunType(v as RunType)}>
@@ -116,7 +134,8 @@ function MlPage() {
               </SelectContent>
             </Select>
             <Button onClick={() => trigger.mutate()} disabled={trigger.isPending}>
-              <Play className="mr-2 h-4 w-4" /> Trigger run
+              <Play className="mr-2 h-4 w-4" />
+              {trigger.isPending ? "Running…" : "Trigger run"}
             </Button>
           </div>
         }
