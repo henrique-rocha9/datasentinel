@@ -10,10 +10,10 @@ const RISK_STYLES: Record<RiskLevel, string> = {
 };
 
 const RISK_LABELS: Record<RiskLevel, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
+  low: "Baixo",
+  medium: "Médio",
+  high: "Alto",
+  critical: "Crítico",
 };
 
 interface RiskBadgeProps {
@@ -30,7 +30,7 @@ export function RiskBadge({ level, className, children }: RiskBadgeProps) {
         RISK_STYLES[level],
         className,
       )}
-      aria-label={`Risk level: ${RISK_LABELS[level]}`}
+      aria-label={`Nível de risco: ${RISK_LABELS[level]}`}
     >
       <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-current" />
       {children ?? RISK_LABELS[level]}

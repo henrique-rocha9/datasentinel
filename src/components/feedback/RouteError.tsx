@@ -22,24 +22,21 @@ export function RouteError({ error, reset, title, description }: RouteErrorProps
   }, [error]);
 
   return (
-    <div
-      role="alert"
-      className="flex min-h-[40vh] items-center justify-center px-6 py-12"
-    >
+    <div role="alert" className="flex min-h-[40vh] items-center justify-center px-6 py-12">
       <div className="max-w-md text-center">
         <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive ring-1 ring-destructive/30">
           <AlertTriangle className="h-5 w-5" aria-hidden />
         </div>
         <h2 className="font-display text-xl font-semibold text-foreground">
-          {title ?? "Something went wrong"}
+          {title ?? "Algo deu errado"}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {description ?? error.message ?? "An unexpected error occurred while loading this view."}
+          {description ?? error.message ?? "Ocorreu um erro inesperado ao carregar esta tela."}
         </p>
         {reset ? (
           <div className="mt-5">
             <Button size="sm" onClick={reset}>
-              Try again
+              Tentar novamente
             </Button>
           </div>
         ) : null}

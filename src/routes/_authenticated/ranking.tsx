@@ -19,7 +19,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { fmtDate, fmtNum, riskClassFromString } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/ranking")({
-  head: () => ({ meta: [{ title: "Ranking — Datasentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Ranking — Datasentinel" }, { name: "robots", content: "noindex" }],
+  }),
   component: RankingPage,
 });
 
@@ -80,8 +82,7 @@ function RankingPage() {
       const q = search.toLowerCase();
       const pm = r.product_models;
       return (
-        pm?.external_product_id.toLowerCase().includes(q) ||
-        pm?.name.toLowerCase().includes(q)
+        pm?.external_product_id.toLowerCase().includes(q) || pm?.name.toLowerCase().includes(q)
       );
     }
     return true;
@@ -90,25 +91,27 @@ function RankingPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Risk"
-        title="Product risk ranking"
-        description="Top products ordered by current predicted risk score. Click a row to inspect."
+        eyebrow="Risco"
+        title="Ranking de risco de produtos"
+        description="Principais produtos ordenados pelo score de risco atual previsto. Clique em uma linha para inspecionar."
       />
       <div className="space-y-4 px-6 py-6">
         <div className="flex flex-wrap items-center gap-3">
           <Input
-            placeholder="Search product or SKU…"
+            placeholder="Buscar produto ou SKU…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs"
           />
           <Select value={riskFilter} onValueChange={setRiskFilter}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All risk levels</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="all">Todos os níveis de risco</SelectItem>
+              <SelectItem value="high">Alto</SelectItem>
+              <SelectItem value="medium">Médio</SelectItem>
+              <SelectItem value="low">Baixo</SelectItem>
             </SelectContent>
           </Select>
           <span className="ml-auto font-mono text-xs text-muted-foreground">
@@ -119,28 +122,35 @@ function RankingPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-6"><TableSkeleton rows={8} /></div>
+              <div className="p-6">
+                <TableSkeleton rows={8} />
+              </div>
             ) : !filtered.length ? (
-              <EmptyState title="No products match" description="Adjust filters or ingest more metrics." />
+              <EmptyState
+                title="Nenhum produto correspondente"
+                description="Ajuste os filtros ou realize a ingestão de mais métricas."
+              />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
                     <tr>
                       <th className="px-4 py-2">#</th>
-                      <th className="px-4 py-2">Product</th>
-                      <th className="px-4 py-2">Risk</th>
+                      <th className="px-4 py-2">Produto</th>
+                      <th className="px-4 py-2">Risco</th>
                       <th className="px-4 py-2 text-right">Score</th>
-                      <th className="px-4 py-2 text-right">Confidence</th>
-                      <th className="px-4 py-2 text-right">Total OS</th>
-                      <th className="px-4 py-2 text-right">High OS %</th>
-                      <th className="px-4 py-2">Inferred</th>
+                      <th className="px-4 py-2 text-right">Confiança</th>
+                      <th className="px-4 py-2 text-right">Total de OS</th>
+                      <th className="px-4 py-2 text-right">% de OS Alta</th>
+                      <th className="px-4 py-2">Inferido em</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {filtered.map((r, idx) => (
                       <tr key={r.model_id} className="hover:bg-muted/30">
-                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{idx + 1}</td>
+                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
+                          {idx + 1}
+                        </td>
                         <td className="px-4 py-2">
                           <Link
                             to="/products/$modelId"
@@ -149,14 +159,22 @@ function RankingPage() {
                           >
                             {r.product_models?.external_product_id ?? "—"}
                           </Link>
-                          <p className="text-xs text-muted-foreground">{r.product_models?.name ?? ""}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {r.product_models?.name ?? ""}
+                          </p>
                         </td>
-                        <td className="px-4 py-2"><RiskBadge level={riskClassFromString(r.risk_class)} /></td>
-                        <td className="px-4 py-2 text-right font-mono">{Number(r.risk_score).toFixed(3)}</td>
+                        <td className="px-4 py-2">
+                          <RiskBadge level={riskClassFromString(r.risk_class)} />
+                        </td>
+                        <td className="px-4 py-2 text-right font-mono">
+                          {Number(r.risk_score).toFixed(3)}
+                        </td>
                         <td className="px-4 py-2 text-right font-mono text-xs">
                           {(Number(r.confidence) * 100).toFixed(0)}%
                         </td>
-                        <td className="px-4 py-2 text-right font-mono">{fmtNum(r.agg?.total_os)}</td>
+                        <td className="px-4 py-2 text-right font-mono">
+                          {fmtNum(r.agg?.total_os)}
+                        </td>
                         <td className="px-4 py-2 text-right font-mono">
                           {r.agg ? `${r.agg.high_os_percentage.toFixed(1)}%` : "—"}
                         </td>

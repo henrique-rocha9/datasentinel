@@ -22,7 +22,7 @@ import { fmtDate, fmtNum } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/ml")({
   head: () => ({
-    meta: [{ title: "ML Runs — Datasentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Execuções de ML — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: MlPage,
 });
@@ -109,7 +109,7 @@ function MlPage() {
         .eq("id", ins.id);
     },
     onSuccess: () => {
-      toast.success("Run completed");
+      toast.success("Execução simulada concluída");
       qc.invalidateQueries({ queryKey: ["ml_runs"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -119,8 +119,8 @@ function MlPage() {
     <div>
       <PageHeader
         eyebrow="Admin"
-        title="ML operations"
-        description="Trigger and inspect model runs."
+        title="Operações de ML"
+        description="Dispare e inspecione execuções de modelos (simuladas para MVP)."
         actions={
           <div className="flex items-center gap-2">
             <Select value={runType} onValueChange={(v) => setRunType(v as RunType)}>
@@ -128,14 +128,13 @@ function MlPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="risk_inference">Risk inference</SelectItem>
+                <SelectItem value="risk_inference">Inferência de risco</SelectItem>
                 <SelectItem value="clustering">Clustering</SelectItem>
-                <SelectItem value="training">Training</SelectItem>
+                <SelectItem value="training">Treinamento</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={() => trigger.mutate()} disabled={trigger.isPending}>
-              <Play className="mr-2 h-4 w-4" />
-              {trigger.isPending ? "Running…" : "Trigger run"}
+              <Play className="mr-2 h-4 w-4" /> Disparar execução
             </Button>
           </div>
         }
@@ -143,7 +142,7 @@ function MlPage() {
       <div className="space-y-4 px-6 py-6">
         <Card>
           <CardHeader>
-            <CardTitle>Recent runs</CardTitle>
+            <CardTitle>Execuções recentes</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {runs.isLoading ? (
@@ -151,45 +150,65 @@ function MlPage() {
                 <TableSkeleton rows={6} columns={6} />
               </div>
             ) : !runs.data?.length ? (
-              <EmptyState title="No ML runs yet" description="Trigger a run to populate." />
+              <EmptyState
+                title="Nenhuma execução de ML ainda"
+                description="Dispare uma execução para popular."
+              />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-2">Type</th>
+                      <th className="px-4 py-2">Tipo</th>
                       <th className="px-4 py-2">Status</th>
-                      <th className="px-4 py-2">Version</th>
-                      <th className="px-4 py-2 text-right">Rows</th>
-                      <th className="px-4 py-2">Started</th>
-                      <th className="px-4 py-2">Finished</th>
+                      <th className="px-4 py-2">Versão</th>
+                      <th className="px-4 py-2 text-right">Linhas</th>
+                      <th className="px-4 py-2">Iniciada em</th>
+                      <th className="px-4 py-2">Finalizada em</th>
                       <th className="px-4 py-2"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {runs.data.map((r: any) => (
-                      <tr key={r.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-2">{r.run_type}</td>
-                        <td className="px-4 py-2">
-                          <StatusBadge label={r.status} tone={statusTone(r.status)} />
-                        </td>
-                        <td className="px-4 py-2 font-mono text-xs">{r.model_version ?? "—"}</td>
-                        <td className="px-4 py-2 text-right font-mono">{fmtNum(r.rows_processed)}</td>
-                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
-                          {fmtDate(r.started_at)}
-                        </td>
-                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
-                          {fmtDate(r.finished_at)}
-                        </td>
-                        <td className="px-4 py-2 text-right">
-                          <Button asChild variant="ghost" size="sm">
-                            <Link to="/admin/ml/$id" params={{ id: r.id }}>
-                              Open
-                            </Link>
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                    {runs.data.map((r: any) => {
+                      const RUN_TYPE_LABELS: Record<string, string> = {
+                        risk_inference: "Inferência de risco",
+                        clustering: "Clustering",
+                        training: "Treinamento",
+                      };
+                      const RUN_STATUS_LABELS: Record<string, string> = {
+                        success: "Sucesso",
+                        failed: "Falhou",
+                        running: "Executando",
+                      };
+                      return (
+                        <tr key={r.id} className="hover:bg-muted/30">
+                          <td className="px-4 py-2">{RUN_TYPE_LABELS[r.run_type] ?? r.run_type}</td>
+                          <td className="px-4 py-2">
+                            <StatusBadge
+                              label={RUN_STATUS_LABELS[r.status] ?? r.status}
+                              tone={statusTone(r.status)}
+                            />
+                          </td>
+                          <td className="px-4 py-2 font-mono text-xs">{r.model_version ?? "—"}</td>
+                          <td className="px-4 py-2 text-right font-mono">
+                            {fmtNum(r.rows_processed)}
+                          </td>
+                          <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
+                            {fmtDate(r.started_at)}
+                          </td>
+                          <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
+                            {fmtDate(r.finished_at)}
+                          </td>
+                          <td className="px-4 py-2 text-right">
+                            <Button asChild variant="ghost" size="sm">
+                              <Link to="/admin/ml/$id" params={{ id: r.id }}>
+                                Abrir
+                              </Link>
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

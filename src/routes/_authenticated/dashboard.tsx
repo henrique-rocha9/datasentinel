@@ -19,7 +19,9 @@ import {
 } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Datasentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Dashboard — Datasentinel" }, { name: "robots", content: "noindex" }],
+  }),
   component: DashboardPage,
 });
 
@@ -31,7 +33,9 @@ async function fetchDashboard() {
     supabase.from("investigations").select("status"),
     supabase
       .from("alerts")
-      .select("id, severity, title, status, created_at, model_id, product_models(external_product_id, name)")
+      .select(
+        "id, severity, title, status, created_at, model_id, product_models(external_product_id, name)",
+      )
       .order("created_at", { ascending: false })
       .limit(8),
   ]);
@@ -62,25 +66,29 @@ function DashboardPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Overview"
-        title="Operational dashboard"
-        description="Live snapshot of monitored products, risk distribution, alerts, and active investigations."
+        eyebrow="Visão geral"
+        title="Dashboard operacional"
+        description="Visão em tempo real de produtos monitorados, distribuição de risco, alertas e investigações ativas."
       />
       <div className="space-y-6 px-6 py-6">
         <div className="grid gap-4 md:grid-cols-4">
-          <Kpi label="Monitored products" value={fmtNum(data?.productCount)} icon={<Layers className="h-4 w-4" />} />
           <Kpi
-            label="Open alerts"
+            label="Produtos monitorados"
+            value={fmtNum(data?.productCount)}
+            icon={<Layers className="h-4 w-4" />}
+          />
+          <Kpi
+            label="Alertas abertos"
             value={fmtNum(data?.openAlertCount)}
             icon={<AlertCircle className="h-4 w-4 text-risk-high" />}
           />
           <Kpi
-            label="Investigations open"
+            label="Investigações abertas"
             value={fmtNum((data?.invCounts.open ?? 0) + (data?.invCounts.in_progress ?? 0))}
             icon={<Search className="h-4 w-4 text-info" />}
           />
           <Kpi
-            label="High-risk products"
+            label="Produtos de alto risco"
             value={fmtNum(data?.riskCounts.high)}
             icon={<Activity className="h-4 w-4 text-risk-high" />}
           />
@@ -89,7 +97,7 @@ function DashboardPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="text-base">Risk distribution</CardTitle>
+              <CardTitle className="text-base">Distribuição de risco</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {(["high", "medium", "low"] as const).map((k) => {
@@ -127,13 +135,16 @@ function DashboardPage() {
 
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-base">Recent alerts</CardTitle>
+              <CardTitle className="text-base">Alertas recentes</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <TableSkeleton rows={5} />
               ) : !data?.recentAlerts.length ? (
-                <EmptyState title="No alerts yet" description="Alerts will appear here as risk escalates." />
+                <EmptyState
+                  title="Nenhum alerta ainda"
+                  description="Os alertas aparecerão aqui conforme o risco aumentar."
+                />
               ) : (
                 <ul className="divide-y divide-border">
                   {data.recentAlerts.map((a: any) => (
@@ -146,13 +157,23 @@ function DashboardPage() {
                             params={{ modelId: a.model_id }}
                             className="truncate font-medium hover:underline"
                           >
-                            {a.product_models?.external_product_id ?? "Product"} · {a.product_models?.name ?? ""}
+                            {a.product_models?.external_product_id ?? "Product"} ·{" "}
+                            {a.product_models?.name ?? ""}
                           </Link>
                         </div>
                         <p className="truncate text-xs text-muted-foreground">{a.title}</p>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1">
-                        <StatusBadge label={a.status} tone={a.status === "open" ? "warning" : "success"} />
+                        <StatusBadge
+                          label={
+                            a.status === "open"
+                              ? "Aberto"
+                              : a.status === "resolved"
+                                ? "Resolvido"
+                                : "Descartado"
+                          }
+                          tone={a.status === "open" ? "warning" : "success"}
+                        />
                         <span className="font-mono text-[11px] text-muted-foreground">
                           {fmtDate(a.created_at)}
                         </span>
@@ -167,16 +188,29 @@ function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Investigation pipeline</CardTitle>
+            <CardTitle className="text-base">Pipeline de investigação</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {(["open", "in_progress", "resolved", "dismissed"] as const).map((s) => (
-              <div key={s} className="rounded-md border border-border bg-card p-4">
-                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{s}</p>
-                <p className="mt-2 font-display text-3xl font-semibold">
-                  {fmtNum(data?.invCounts[s])}
+            {(
+              [
+                { key: "open", label: "Aberto" },
+                { key: "in_progress", label: "Em andamento" },
+                { key: "resolved", label: "Resolvido" },
+                { key: "dismissed", label: "Descartado" },
+              ] as const
+            ).map((s) => (
+              <div key={s.key} className="rounded-md border border-border bg-card p-4">
+                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {s.label}
                 </p>
-                <StatusBadge label={s} tone={investigationStatusTone(s)} className="mt-2" />
+                <p className="mt-2 font-display text-3xl font-semibold">
+                  {fmtNum(data?.invCounts[s.key])}
+                </p>
+                <StatusBadge
+                  label={s.label}
+                  tone={investigationStatusTone(s.key)}
+                  className="mt-2"
+                />
               </div>
             ))}
           </CardContent>
@@ -191,7 +225,9 @@ function Kpi({ label, value, icon }: { label: string; value: string; icon: React
     <Card>
       <CardContent className="flex items-center justify-between pt-6">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {label}
+          </p>
           <p className="mt-1 font-display text-3xl font-semibold">{value}</p>
         </div>
         <div className="rounded-md border border-border bg-muted/30 p-2">{icon}</div>

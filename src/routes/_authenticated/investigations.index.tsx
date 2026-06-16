@@ -8,23 +8,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  fmtDate,
-  fmtNum,
-  investigationStatusTone,
-  normalizeInvestigationStatus,
-} from "@/lib/risk";
+import { fmtDate, fmtNum, investigationStatusTone, normalizeInvestigationStatus } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/investigations/")({
-  head: () => ({ meta: [{ title: "Investigations — Datasentinel" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Investigações — Datasentinel" }, { name: "robots", content: "noindex" }],
+  }),
   component: InvestigationsBoard,
 });
 
 const COLUMNS = [
-  { key: "open", label: "Open" },
-  { key: "in_progress", label: "In progress" },
-  { key: "resolved", label: "Resolved" },
-  { key: "dismissed", label: "Dismissed" },
+  { key: "open", label: "Aberto" },
+  { key: "in_progress", label: "Em andamento" },
+  { key: "resolved", label: "Resolvido" },
+  { key: "dismissed", label: "Descartado" },
 ] as const;
 
 async function fetchInvestigations() {
@@ -60,23 +57,26 @@ function InvestigationsBoard() {
   return (
     <div>
       <PageHeader
-        eyebrow="Workflow"
-        title="Investigations"
-        description="Triage, assign, and resolve product investigations. Legacy 'closed' items appear under Resolved."
+        eyebrow="Fluxo de trabalho"
+        title="Investigações"
+        description="Faça a triagem, atribua e resolva investigações de produtos. Itens antigos marcados como 'closed' aparecem em Resolvido."
         actions={
           <Tabs value={view} onValueChange={(v) => setView(v as any)}>
             <TabsList>
-              <TabsTrigger value="board">Board</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
+              <TabsTrigger value="board">Quadro</TabsTrigger>
+              <TabsTrigger value="list">Lista</TabsTrigger>
             </TabsList>
           </Tabs>
         }
       />
       <div className="px-6 py-6">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : !data?.length ? (
-          <EmptyState title="No investigations" description="Open one from a product page." />
+          <EmptyState
+            title="Nenhuma investigação"
+            description="Abra uma a partir da página de um produto."
+          />
         ) : view === "board" ? (
           <div className="grid gap-4 lg:grid-cols-4">
             {COLUMNS.map((col) => (
@@ -106,7 +106,7 @@ function InvestigationsBoard() {
                       </p>
                     </Link>
                   ))}
-                  {!(groups[col.key]?.length) ? (
+                  {!groups[col.key]?.length ? (
                     <p className="text-xs text-muted-foreground">—</p>
                   ) : null}
                 </CardContent>
@@ -120,35 +120,52 @@ function InvestigationsBoard() {
                 <thead className="bg-muted/40 text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
                   <tr>
                     <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Reason</th>
-                    <th className="px-4 py-2">Product</th>
-                    <th className="px-4 py-2">Opened</th>
+                    <th className="px-4 py-2">Motivo</th>
+                    <th className="px-4 py-2">Produto</th>
+                    <th className="px-4 py-2">Aberto em</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {data.map((i: any) => (
-                    <tr key={i.id} className="hover:bg-muted/30">
-                      <td className="px-4 py-2">
-                        <StatusBadge
-                          label={normalizeInvestigationStatus(i.status)}
-                          tone={investigationStatusTone(i.status)}
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <Link to="/investigations/$id" params={{ id: i.id }} className="hover:underline">
-                          {i.reason}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2 font-mono text-xs">
-                        <Link to="/products/$modelId" params={{ modelId: i.model_id }} className="hover:underline">
-                          {i.product_models?.external_product_id}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
-                        {fmtDate(i.opened_at)}
-                      </td>
-                    </tr>
-                  ))}
+                  {data.map((i: any) => {
+                    const STATUS_LABELS: Record<string, string> = {
+                      open: "Aberto",
+                      in_progress: "Em andamento",
+                      resolved: "Resolvido",
+                      dismissed: "Descartado",
+                    };
+                    const norm = normalizeInvestigationStatus(i.status);
+                    return (
+                      <tr key={i.id} className="hover:bg-muted/30">
+                        <td className="px-4 py-2">
+                          <StatusBadge
+                            label={STATUS_LABELS[norm] ?? norm}
+                            tone={investigationStatusTone(i.status)}
+                          />
+                        </td>
+                        <td className="px-4 py-2">
+                          <Link
+                            to="/investigations/$id"
+                            params={{ id: i.id }}
+                            className="hover:underline"
+                          >
+                            {i.reason}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-2 font-mono text-xs">
+                          <Link
+                            to="/products/$modelId"
+                            params={{ modelId: i.model_id }}
+                            className="hover:underline"
+                          >
+                            {i.product_models?.external_product_id}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
+                          {fmtDate(i.opened_at)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </CardContent>

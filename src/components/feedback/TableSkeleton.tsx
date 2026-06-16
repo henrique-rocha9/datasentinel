@@ -12,7 +12,7 @@ export function TableSkeleton({ rows = 6, columns = 5, className }: TableSkeleto
     <div
       className={cn("overflow-hidden rounded-lg border border-border bg-card", className)}
       role="status"
-      aria-label="Loading data"
+      aria-label="Carregando dados"
     >
       <div
         className="grid gap-px bg-border"

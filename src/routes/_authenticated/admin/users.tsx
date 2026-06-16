@@ -22,7 +22,7 @@ import { fmtDate } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   head: () => ({
-    meta: [{ title: "Users — Datasentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Usuários — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: UsersPage,
 });
@@ -61,13 +61,11 @@ function UsersPage() {
       // Replace roles with the single chosen one (MVP keeps it simple).
       const { error: delErr } = await supabase.from("user_roles").delete().eq("user_id", userId);
       if (delErr) throw delErr;
-      const { error: insErr } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role });
+      const { error: insErr } = await supabase.from("user_roles").insert({ user_id: userId, role });
       if (insErr) throw insErr;
     },
     onSuccess: () => {
-      toast.success("Role updated");
+      toast.success("Role atualizada");
       qc.invalidateQueries({ queryKey: ["admin_users"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -81,12 +79,12 @@ function UsersPage() {
     <div>
       <PageHeader
         eyebrow="Admin"
-        title="Users & roles"
-        description="Assign roles to existing users. New users default to viewer."
+        title="Usuários & roles"
+        description="Atribua roles a usuários existentes. Novos usuários têm por padrão a role viewer."
       />
       <div className="space-y-4 px-6 py-6">
         <Input
-          placeholder="Search…"
+          placeholder="Buscar…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
@@ -98,17 +96,17 @@ function UsersPage() {
                 <TableSkeleton rows={6} columns={4} />
               </div>
             ) : !filtered.length ? (
-              <EmptyState title="No users" />
+              <EmptyState title="Nenhum usuário" />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-2">User</th>
-                      <th className="px-4 py-2">Job title</th>
+                      <th className="px-4 py-2">Usuário</th>
+                      <th className="px-4 py-2">Cargo</th>
                       <th className="px-4 py-2">Roles</th>
-                      <th className="px-4 py-2">Created</th>
-                      <th className="px-4 py-2">Set role</th>
+                      <th className="px-4 py-2">Criado em</th>
+                      <th className="px-4 py-2">Definir role</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -124,7 +122,7 @@ function UsersPage() {
                         <td className="px-4 py-2">
                           <div className="flex flex-wrap gap-1">
                             {u.roles.length === 0 ? (
-                              <span className="text-xs text-muted-foreground">none</span>
+                              <span className="text-xs text-muted-foreground">nenhuma</span>
                             ) : (
                               u.roles.map((r) => (
                                 <StatusBadge key={r} label={r} tone={roleTone(r)} />
@@ -167,7 +165,7 @@ function RoleSelect({
   return (
     <Select value={current ?? ""} onValueChange={(v) => onChange(v as Role)} disabled={disabled}>
       <SelectTrigger className="h-8 w-32">
-        <SelectValue placeholder="Assign…" />
+        <SelectValue placeholder="Atribuir…" />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="viewer">viewer</SelectItem>

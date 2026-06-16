@@ -9,9 +9,9 @@ const STYLES: Record<AlertSeverity, string> = {
 };
 
 const LABELS: Record<AlertSeverity, string> = {
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
+  medium: "Média",
+  high: "Alta",
+  critical: "Crítica",
 };
 
 interface SeverityBadgeProps {
@@ -27,7 +27,7 @@ export function SeverityBadge({ severity, className }: SeverityBadgeProps) {
         STYLES[severity],
         className,
       )}
-      aria-label={`Severity: ${LABELS[severity]}`}
+      aria-label={`Severidade: ${LABELS[severity]}`}
     >
       {LABELS[severity]}
     </span>

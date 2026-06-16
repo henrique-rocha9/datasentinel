@@ -15,26 +15,25 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          Error 404
+          Erro 404
         </p>
         <h1 className="mt-3 font-display text-5xl font-semibold text-foreground">
-          Page not found
+          Página não encontrada
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          A página que você está procurando não existe ou foi movida.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Ir para o início
           </Link>
         </div>
       </div>
@@ -53,13 +52,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-destructive">
-          Something went wrong
+          Algo deu errado
         </p>
         <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Esta página não carregou
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          You can try refreshing or head back to the dashboard.
+          Você pode tentar atualizar a página ou voltar para o dashboard.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -69,13 +68,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Tentar novamente
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Ir para o início
           </a>
         </div>
       </div>
@@ -88,17 +87,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Datasentinel — Anomaly Detection & Risk Classification" },
+      { title: "Datasentinel — Detecção de Anomalias & Classificação de Risco" },
       {
         name: "description",
         content:
-          "Industrial anomaly detection and risk classification platform. Ingest product metrics, predict risk, cluster failure modes, investigate.",
+          "Plataforma de detecção de anomalias industriais e classificação de risco. Realize a ingestão de métricas de produtos, preveja riscos, agrupe modos de falha em clusters e investigue.",
       },
       { name: "author", content: "Datasentinel" },
-      { property: "og:title", content: "Datasentinel — Anomaly Detection & Risk Classification" },
+      {
+        property: "og:title",
+        content: "Datasentinel — Detecção de Anomalias & Classificação de Risco",
+      },
       {
         property: "og:description",
-        content: "Ingest, predict, cluster, investigate. End-to-end product-risk intelligence.",
+        content:
+          "Faça a ingestão, preveja, agrupe em clusters e investigue. Inteligência de ponta a ponta para risco de produtos.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -121,7 +124,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
@@ -156,4 +159,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-
