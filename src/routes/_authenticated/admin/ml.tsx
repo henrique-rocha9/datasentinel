@@ -76,7 +76,30 @@ function MlPage() {
       if (error) throw error;
 
       // 2. Call Python ML API
-      let result: any;
+      interface MLRunResponse {
+        status: "success" | "failed" | "skipped";
+        rows_processed: number;
+        model_version: string;
+        metadata: {
+          model_name?: string;
+          metrics?: Record<string, number>;
+          cluster_sizes?: Record<string, { count: number; pct: number }>;
+          cluster_profile?: Record<string, Record<string, number>>;
+          product_clusters?: Array<{
+            produto_id: string;
+            cluster_id: number;
+            cluster_label: string;
+            cluster_characteristics: Record<string, string>;
+          }>;
+          best_model?: string;
+          all_models?: Record<string, { accuracy: number }>;
+          training_time_s?: number;
+          inference_time_s?: number;
+          predictions?: Record<string, number>;
+          artifacts?: Array<{ name: string; size_kb: number }>;
+        };
+      }
+      let result: MLRunResponse;
       try {
         const resp = await fetch(`${ML_API}/run`, {
           method: "POST",
@@ -88,12 +111,13 @@ function MlPage() {
           throw new Error(msg);
         }
         result = await resp.json();
-      } catch (err: any) {
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
         await supabase
           .from("ml_runs")
           .update({ status: "failed", finished_at: new Date().toISOString() })
           .eq("id", ins.id);
-        throw new Error(`ML API error: ${err.message}`);
+        throw new Error(`ML API error: ${errorMsg}`);
       }
 
       // 3. Persist real results back to Supabase
@@ -107,12 +131,25 @@ function MlPage() {
           metadata: result.metadata,
         })
         .eq("id", ins.id);
+
+      // 4. If run was clustering, persist product-level clusters in Supabase
+      if (runType === "clustering" && result.metadata?.product_clusters) {
+        // @ts-expect-error - update_product_clusters RPC is defined in a migration and not yet generated in database types
+        const { error: clError } = await supabase.rpc("update_product_clusters", {
+          _assignments: result.metadata.product_clusters,
+          _model_version: result.model_version,
+        });
+        if (clError) {
+          console.error("[Clustering] Failed to save clusters to Supabase:", clError);
+          throw new Error(`Failed to save clusters to Supabase: ${clError.message}`);
+        }
+      }
     },
     onSuccess: () => {
       toast.success("Execução simulada concluída");
       qc.invalidateQueries({ queryKey: ["ml_runs"] });
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -169,7 +206,7 @@ function MlPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {runs.data.map((r: any) => {
+                    {runs.data.map((r) => {
                       const RUN_TYPE_LABELS: Record<string, string> = {
                         risk_inference: "Inferência de risco",
                         clustering: "Clustering",

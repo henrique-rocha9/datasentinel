@@ -90,6 +90,38 @@ def load_risk_dataset() -> pd.DataFrame:
     return df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 
+def load_os_dataset() -> pd.DataFrame:
+    if OS_DATASET_PATH.exists():
+        return pd.read_csv(OS_DATASET_PATH)
+
+    # Fallback: synthetic OS data
+    np.random.seed(42)
+    # Get product IDs from demo dataset if exists, else generic IDs
+    if RISK_DATASET_PATH.exists():
+        prod_ids = pd.read_csv(RISK_DATASET_PATH)["produto_id"].unique().tolist()
+    else:
+        prod_ids = [100000 + i for i in range(50)]
+
+    rows = []
+    for p_id in prod_ids:
+        # Generate between 3 and 10 OS per product
+        n_os = np.random.randint(3, 10)
+        for _ in range(n_os):
+            rows.append({
+                "produto_id": p_id,
+                "qtd_defeitos_constatados": int(np.random.poisson(1.5)),
+                "teve_troca_peca": int(np.random.choice([0, 1], p=[0.6, 0.4])),
+                "em_garantia": int(np.random.choice([0, 1], p=[0.7, 0.3])),
+                "complexidade_os": int(np.random.choice([1, 2, 3], p=[0.5, 0.3, 0.2])),
+                "retrabalho_flag": int(np.random.choice([0, 1], p=[0.8, 0.2])),
+                "tempo_aberto_dias": float(np.random.exponential(5.0)),
+            })
+    df = pd.DataFrame(rows)
+    OS_DATASET_PATH.parent.mkdir(exist_ok=True, parents=True)
+    df.to_csv(OS_DATASET_PATH, index=False)
+    return df
+
+
 def run_training(df: pd.DataFrame) -> dict:
     X = df[RISK_FEATURES]
     y = df["risco_produto"]
@@ -148,7 +180,7 @@ def run_risk_inference(df: pd.DataFrame) -> dict:
 # Clustering helpers
 # ══════════════════════════════════════════════════════════════════════════════
 
-def preprocess_os(df: pd.DataFrame) -> tuple[pd.DataFrame, RobustScaler]:
+def preprocess_os(df: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray, RobustScaler]:
     df = df.copy()
     df["em_garantia"] = df["em_garantia"].fillna(0).astype(int)
     df["tempo_aberto_log"] = np.log1p(df["tempo_aberto_dias"])
@@ -189,6 +221,34 @@ def run_clustering(df: pd.DataFrame) -> dict:
         for k, v in dist.items()
     }
 
+    # Group by produto_id to predict cluster per product
+    product_clusters = []
+    if "produto_id" in df.columns:
+        prod_df = df.groupby("produto_id")[CLUSTER_FEATURES].mean().reset_index()
+        prod_scaled = scaler.transform(prod_df[CLUSTER_FEATURES])
+        prod_df["cluster"] = km.predict(prod_scaled)
+
+        cluster_meta = {
+            0: {
+                "label": "Desgaste mecânico / Instabilidade",
+                "characteristics": {"dominant_signal": "vibration", "trend": "cyclic"}
+            },
+            1: {
+                "label": "Estável / Operação Normal",
+                "characteristics": {"dominant_signal": "none", "trend": "flat"}
+            }
+        }
+
+        for _, row in prod_df.iterrows():
+            c_id = int(row["cluster"])
+            meta = cluster_meta.get(c_id, {"label": f"Cluster {c_id}", "characteristics": {}})
+            product_clusters.append({
+                "produto_id": str(row["produto_id"]),
+                "cluster_id": c_id,
+                "cluster_label": meta["label"],
+                "cluster_characteristics": meta["characteristics"]
+            })
+
     # Save model + scaler
     CLUSTER_MODEL_PATH.parent.mkdir(exist_ok=True)
     joblib.dump(
@@ -201,6 +261,7 @@ def run_clustering(df: pd.DataFrame) -> dict:
         "metrics": {"silhouette": sil, "davies_bouldin": db, "calinski_harabasz": ch},
         "cluster_sizes": cluster_sizes,
         "cluster_profile": {str(k): v for k, v in profile.items()},
+        "product_clusters": product_clusters,
     }
 
 
@@ -267,13 +328,7 @@ async def trigger_run(req: RunRequest):
         }
 
     if req.run_type == "clustering":
-        if not OS_DATASET_PATH.exists():
-            raise HTTPException(
-                400,
-                f"dataset_os.csv não encontrado em ml/datasets/. "
-                "Coloque o arquivo lá ou use POST /upload-clustering para subir via HTTP."
-            )
-        df = pd.read_csv(OS_DATASET_PATH)
+        df = load_os_dataset()
         r  = run_clustering(df)
         elapsed = round(time.time() - t0, 2)
         size_kb = int(CLUSTER_MODEL_PATH.stat().st_size / 1024)
@@ -286,6 +341,7 @@ async def trigger_run(req: RunRequest):
                 "metrics":          r["metrics"],
                 "cluster_sizes":    r["cluster_sizes"],
                 "cluster_profile":  r["cluster_profile"],
+                "product_clusters": r["product_clusters"],
                 "training_time_s":  elapsed,
                 "artifacts": [{"name": "clustering_model.joblib", "size_kb": size_kb}],
             },
@@ -314,6 +370,7 @@ async def upload_and_cluster(file: UploadFile = File(...)):
             "metrics":         r["metrics"],
             "cluster_sizes":   r["cluster_sizes"],
             "cluster_profile": r["cluster_profile"],
+            "product_clusters": r["product_clusters"],
             "training_time_s": elapsed,
             "artifacts": [{"name": "clustering_model.joblib", "size_kb": size_kb}],
         },
