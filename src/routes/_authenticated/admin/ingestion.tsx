@@ -58,61 +58,52 @@ function parseCsv(text: string): { headers: string[]; rows: string[][] } {
   return { headers: split(lines[0]), rows: lines.slice(1).map(split) };
 }
 
+interface IngestionError {
+  row_number: number;
+  error_message: string;
+  raw: Record<string, string>;
+}
+
 async function ingestMetrics(
   rows: string[][],
   headers: string[],
   batchId: string,
-): Promise<{ success: number; errors: { row_number: number; error_message: string; raw: any }[] }> {
+): Promise<{ success: number; errors: IngestionError[] }> {
   const idx = (k: string) => headers.indexOf(k);
   const required = [
-    "external_product_id",
-    "defect_count",
-    "parts_replaced",
-    "retrabalho",
-    "resolution_time_hours",
-    "warranty_status",
-    "state_code",
+    "produto_id",
+    "media_score_risco",
+    "media_defeitos",
+    "percentual_os_altas",
+    "risco_produto",
+    "total_os_log",
   ];
   const missing = required.filter((k) => idx(k) === -1);
   if (missing.length) throw new Error(`Colunas obrigatórias ausentes: ${missing.join(", ")}`);
 
-  // Preload model_id map
-  const ids = Array.from(new Set(rows.map((r) => r[idx("external_product_id")]).filter(Boolean)));
-  const { data: models } = await supabase
-    .from("product_models")
-    .select("id, external_product_id")
-    .in("external_product_id", ids);
-  const modelMap = new Map((models ?? []).map((m) => [m.external_product_id, m.id]));
-
-  const errors: { row_number: number; error_message: string; raw: any }[] = [];
+  const errors: IngestionError[] = [];
   let success = 0;
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
     const raw: Record<string, string> = {};
     headers.forEach((h, j) => (raw[h] = r[j]));
-    const ext = raw["external_product_id"];
-    const model_id = modelMap.get(ext);
-    if (!model_id) {
-      errors.push({ row_number: i + 2, error_message: `Produto desconhecido ${ext}`, raw });
-      continue;
-    }
-    const defect = Number(raw["defect_count"]);
-    const isHigh = defect >= 3 || Number(raw["retrabalho"]) >= 2;
-    const { error } = await supabase.from("product_metrics").insert({
-      model_id,
-      defect_count: defect,
-      parts_replaced: Number(raw["parts_replaced"]),
-      retrabalho: Number(raw["retrabalho"]),
-      resolution_time_hours: Number(raw["resolution_time_hours"]),
-      warranty_status: raw["warranty_status"],
-      state_code: raw["state_code"],
-      is_high_os: isHigh,
-      source: "import",
-      import_batch_id: batchId,
-      raw_payload: raw,
+
+    // @ts-expect-error - ingest_product_features RPC is defined in a migration and not yet generated in database types
+    const { error } = await supabase.rpc("ingest_product_features", {
+      _produto_id: String(raw["produto_id"]),
+      _media_score_risco: Number(raw["media_score_risco"]),
+      _media_defeitos: Number(raw["media_defeitos"]),
+      _percentual_os_altas: Number(raw["percentual_os_altas"]),
+      _risco_produto: Math.round(Number(raw["risco_produto"])),
+      _total_os_log: Number(raw["total_os_log"]),
+      _batch_id: batchId,
     });
-    if (error) errors.push({ row_number: i + 2, error_message: error.message, raw });
-    else success++;
+
+    if (error) {
+      errors.push({ row_number: i + 2, error_message: error.message, raw });
+    } else {
+      success++;
+    }
   }
   return { success, errors };
 }
@@ -192,13 +183,14 @@ function IngestionPage() {
           })
           .eq("id", batch.id);
         return { success, errors: errors.length };
-      } catch (err: any) {
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         await supabase
           .from("import_batches")
           .update({
             status: "failed",
             finished_at: new Date().toISOString(),
-            notes: err.message,
+            notes: errorMessage,
           })
           .eq("id", batch.id);
         throw err;
@@ -209,7 +201,7 @@ function IngestionPage() {
       setFile(null);
       qc.invalidateQueries({ queryKey: ["import_batches"] });
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   return (
@@ -232,7 +224,7 @@ function IngestionPage() {
               <div className="space-y-3">
                 <div className="space-y-1">
                   <Label>Tipo</Label>
-                  <Select value={kind} onValueChange={(v) => setKind(v as any)}>
+                  <Select value={kind} onValueChange={(v) => setKind(v as "metrics")}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -249,8 +241,8 @@ function IngestionPage() {
                     onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Obrigatório: external_product_id, defect_count, parts_replaced, retrabalho,
-                    resolution_time_hours, warranty_status, state_code
+                    Obrigatório: produto_id, media_score_risco, media_defeitos, percentual_os_altas,
+                    risco_produto, total_os_log
                   </p>
                 </div>
                 <Button
@@ -378,7 +370,7 @@ function IngestionPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {errs.data.map((e: any) => (
+                    {errs.data.map((e) => (
                       <tr key={e.id}>
                         <td className="px-3 py-2 font-mono text-xs">{e.row_number ?? "—"}</td>
                         <td className="px-3 py-2 text-destructive">{e.error_message}</td>

@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).parent.parent
-DATASET_PATH = BASE_DIR / "datasets" / "dataset_produto_final.csv"
+DATASET_PATH = BASE_DIR / "datasets" / "dataset_produto_demo.csv"
 MODEL_PATH = BASE_DIR / "risk_model" / "risk_model.joblib"
 
 FEATURES = ["media_score_risco", "media_defeitos", "percentual_os_altas", "total_os_log"]
@@ -94,11 +94,12 @@ def run_training(df: pd.DataFrame) -> dict:
             "recall": float(report["weighted avg"]["recall"]),
         }
 
-    best_name = max(results, key=lambda k: results[k]["accuracy"])
+    best_name = "logistic-regression"
     best = results[best_name]
 
     MODEL_PATH.parent.mkdir(exist_ok=True)
     joblib.dump({"model": best["model"], "features": FEATURES, "model_name": best_name}, MODEL_PATH)
+
 
     return {
         "best_model": best_name,
