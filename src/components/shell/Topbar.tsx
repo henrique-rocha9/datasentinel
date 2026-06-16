@@ -21,10 +21,12 @@ export function Topbar() {
       <div className="flex items-center gap-3">
         <StatusBadge
           label={primaryRole}
-          tone={primaryRole === "admin" ? "destructive" : primaryRole === "analyst" ? "info" : "neutral"}
+          tone={
+            primaryRole === "admin" ? "destructive" : primaryRole === "analyst" ? "info" : "neutral"
+          }
         />
         <Button variant="ghost" size="sm" onClick={handleSignOut}>
-          <LogOut className="mr-2 h-4 w-4" /> Sign out
+          <LogOut className="mr-2 h-4 w-4" /> Sair
         </Button>
       </div>
     </div>

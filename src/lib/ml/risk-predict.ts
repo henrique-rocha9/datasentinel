@@ -16,12 +16,7 @@
 import type { RiskFeatures, RiskLevel, RiskPrediction } from "./types";
 
 const LOGREG = {
-  features: [
-    "media_score_risco",
-    "media_defeitos",
-    "percentual_os_altas",
-    "total_os_log",
-  ] as const,
+  features: ["media_score_risco", "media_defeitos", "percentual_os_altas", "total_os_log"] as const,
   // classes_[i] -> RISK_LEVELS[i]
   classes: [0, 1, 2] as const,
   // coef_[k][j] for class k and feature j
@@ -92,11 +87,7 @@ export function predictRiskProba(features: RiskFeatures): Record<RiskLevel, numb
 
 export function predictRisk(features: RiskFeatures): RiskPrediction {
   const probabilities = predictRiskProba(features);
-  const risk_level = (Object.entries(probabilities).sort(
-    (a, b) => b[1] - a[1],
-  )[0][0]) as RiskLevel;
-  const risk_score = Number(
-    (probabilities.high * 1 + probabilities.medium * 0.5).toFixed(4),
-  );
+  const risk_level = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0][0] as RiskLevel;
+  const risk_score = Number((probabilities.high * 1 + probabilities.medium * 0.5).toFixed(4));
   return { risk_level, risk_score, probabilities };
 }

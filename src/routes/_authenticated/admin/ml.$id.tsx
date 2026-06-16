@@ -11,7 +11,7 @@ import { fmtDate, fmtNum } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/ml/$id")({
   head: () => ({
-    meta: [{ title: "ML Run — Datasentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Execução de ML — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: RunDetail,
 });
@@ -38,15 +38,25 @@ function RunDetail() {
   const metrics = meta.metrics ?? {};
   const artifacts = (meta.artifacts ?? []) as any[];
 
+  const RUN_TYPE_LABELS: Record<string, string> = {
+    risk_inference: "Inferência de risco",
+    clustering: "Clustering",
+    training: "Treinamento",
+  };
+
   return (
     <div>
       <PageHeader
         eyebrow="Admin · ML"
-        title={data ? `${data.run_type} · ${data.model_version ?? ""}` : "Run"}
+        title={
+          data
+            ? `${RUN_TYPE_LABELS[data.run_type] ?? data.run_type} · ${data.model_version ?? ""}`
+            : "Execução"
+        }
         actions={
           <Button asChild variant="ghost" size="sm">
             <Link to="/admin/ml">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
             </Link>
           </Button>
         }
@@ -54,23 +64,35 @@ function RunDetail() {
       <div className="grid gap-4 px-6 py-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Run</CardTitle>
+            <CardTitle>Execução</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {isLoading || !data ? (
-              <p className="text-muted-foreground">Loading…</p>
+              <p className="text-muted-foreground">Carregando…</p>
             ) : (
               <>
                 <Field label="Status">
-                  <StatusBadge label={data.status} tone={tone(data.status)} />
+                  {(() => {
+                    const RUN_STATUS_LABELS: Record<string, string> = {
+                      success: "Sucesso",
+                      failed: "Falhou",
+                      running: "Executando",
+                    };
+                    return (
+                      <StatusBadge
+                        label={RUN_STATUS_LABELS[data.status] ?? data.status}
+                        tone={tone(data.status)}
+                      />
+                    );
+                  })()}
                 </Field>
-                <Field label="Type">{data.run_type}</Field>
-                <Field label="Model version">{data.model_version ?? "—"}</Field>
-                <Field label="Started">{fmtDate(data.started_at)}</Field>
-                <Field label="Finished">{fmtDate(data.finished_at)}</Field>
-                <Field label="Rows processed">{fmtNum(data.rows_processed)}</Field>
+                <Field label="Tipo">{RUN_TYPE_LABELS[data.run_type] ?? data.run_type}</Field>
+                <Field label="Versão do modelo">{data.model_version ?? "—"}</Field>
+                <Field label="Iniciada em">{fmtDate(data.started_at)}</Field>
+                <Field label="Finalizada em">{fmtDate(data.finished_at)}</Field>
+                <Field label="Linhas processadas">{fmtNum(data.rows_processed)}</Field>
                 {data.error_text ? (
-                  <Field label="Error">
+                  <Field label="Erro">
                     <span className="text-destructive">{data.error_text}</span>
                   </Field>
                 ) : null}
@@ -80,11 +102,11 @@ function RunDetail() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Metrics</CardTitle>
+            <CardTitle>Métricas</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {Object.keys(metrics).length === 0 ? (
-              <p className="text-muted-foreground">No metrics recorded.</p>
+              <p className="text-muted-foreground">Nenhuma métrica registrada.</p>
             ) : (
               Object.entries(metrics).map(([k, v]) => (
                 <Field key={k} label={k}>
@@ -96,11 +118,11 @@ function RunDetail() {
         </Card>
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Artifacts</CardTitle>
+            <CardTitle>Artefatos</CardTitle>
           </CardHeader>
           <CardContent>
             {artifacts.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No artifacts.</p>
+              <p className="text-sm text-muted-foreground">Nenhum artefato.</p>
             ) : (
               <ul className="space-y-1 text-sm">
                 {artifacts.map((a, i) => (

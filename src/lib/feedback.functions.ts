@@ -3,10 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(ctx: {
-  supabase: ReturnType<typeof Object> & any;
-  userId: string;
-}) {
+async function assertAdmin(ctx: { supabase: ReturnType<typeof Object> & any; userId: string }) {
   const { data, error } = await ctx.supabase
     .from("user_roles")
     .select("role")
@@ -14,16 +11,14 @@ async function assertAdmin(ctx: {
     .eq("role", "admin")
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden: admin role required");
+  if (!data) throw new Error("Proibido: role admin requerida");
 }
 
 const RiskClass = z.enum(["low", "medium", "high"]);
 
 export const rebuildAggregates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
-    z.object({ modelId: z.string().uuid() }).parse(data),
-  )
+  .inputValidator((data: unknown) => z.object({ modelId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.rpc("fn_rebuild_aggregates", {
@@ -52,20 +47,17 @@ export const recordRiskChange = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data: historyId, error } = await context.supabase.rpc(
-      "fn_record_risk_change",
-      {
-        _model_id: data.modelId,
-        _new_class: data.newClass,
-        _new_score: data.newScore,
-        _prob_low: data.probLow,
-        _prob_medium: data.probMedium,
-        _prob_high: data.probHigh,
-        _confidence: data.confidence,
-        _model_version: data.modelVersion,
-        _source_metric_id: data.sourceMetricId ?? undefined,
-      },
-    );
+    const { data: historyId, error } = await context.supabase.rpc("fn_record_risk_change", {
+      _model_id: data.modelId,
+      _new_class: data.newClass,
+      _new_score: data.newScore,
+      _prob_low: data.probLow,
+      _prob_medium: data.probMedium,
+      _prob_high: data.probHigh,
+      _confidence: data.confidence,
+      _model_version: data.modelVersion,
+      _source_metric_id: data.sourceMetricId ?? undefined,
+    });
     if (error) throw new Error(error.message);
     return { historyId };
   });
@@ -85,16 +77,13 @@ export const recordClusterChange = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data: historyId, error } = await context.supabase.rpc(
-      "fn_record_cluster_change",
-      {
-        _model_id: data.modelId,
-        _new_cluster: data.newCluster,
-        _new_label: data.newLabel,
-        _characteristics: data.characteristics,
-        _model_version: data.modelVersion,
-      },
-    );
+    const { data: historyId, error } = await context.supabase.rpc("fn_record_cluster_change", {
+      _model_id: data.modelId,
+      _new_cluster: data.newCluster,
+      _new_label: data.newLabel,
+      _characteristics: data.characteristics,
+      _model_version: data.modelVersion,
+    });
     if (error) throw new Error(error.message);
     return { historyId };
   });

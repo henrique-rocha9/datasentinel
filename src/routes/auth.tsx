@@ -19,8 +19,11 @@ export const Route = createFileRoute("/auth")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
-      { title: "Sign in — Datasentinel" },
-      { name: "description", content: "Sign in to Datasentinel to monitor product risk and investigate alerts." },
+      { title: "Entrar — Datasentinel" },
+      {
+        name: "description",
+        content: "Entre no Datasentinel para monitorar riscos de produtos e investigar alertas.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -58,14 +61,14 @@ function AuthPage() {
         </Link>
         <div className="relative z-10 max-w-md space-y-4">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            Industrial risk intelligence
+            Inteligência de risco industrial
           </p>
           <h1 className="font-display text-3xl font-semibold leading-tight">
-            Predict, cluster, and investigate product risk — end to end.
+            Preveja, agrupe em clusters e investigue riscos de produtos — de ponta a ponta.
           </h1>
           <p className="text-sm text-muted-foreground">
-            Ingest metrics, classify risk in real time, group failure modes, and route alerts to
-            investigations from a single workspace.
+            Faça a ingestão de métricas, classifique riscos em tempo real, agrupe modos de falha e
+            direcione alertas para investigações a partir de um único workspace.
           </p>
         </div>
         <p className="relative z-10 font-mono text-xs text-muted-foreground">
@@ -79,13 +82,15 @@ function AuthPage() {
               <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <Activity className="h-4 w-4" />
               </span>
-              <span className="font-display text-lg font-semibold tracking-tight">Datasentinel</span>
+              <span className="font-display text-lg font-semibold tracking-tight">
+                Datasentinel
+              </span>
             </Link>
           </div>
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
+              <TabsTrigger value="signin">Entrar</TabsTrigger>
+              <TabsTrigger value="signup">Criar conta</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <SignInForm onSuccess={() => router.invalidate()} />
@@ -97,7 +102,7 @@ function AuthPage() {
           <div className="my-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Or continue with
+              Ou continue com
             </span>
             <div className="h-px flex-1 bg-border" />
           </div>
@@ -119,23 +124,37 @@ function SignInForm({ onSuccess }: { onSuccess: () => void }) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Signed in");
+    toast.success("Entrou com sucesso");
     onSuccess();
   }
 
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="si-email">Email</Label>
-        <Input id="si-email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Label htmlFor="si-email">E-mail</Label>
+        <Input
+          id="si-email"
+          type="email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="si-password">Password</Label>
-        <Input id="si-password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Label htmlFor="si-password">Senha</Label>
+        <Input
+          id="si-password"
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </div>
       <Button type="submit" className="w-full" disabled={busy}>
         {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-        Sign in
+        Entrar
       </Button>
     </form>
   );
@@ -160,27 +179,47 @@ function SignUpForm() {
     });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Check your email to confirm your account.");
+    toast.success("Verifique seu e-mail para confirmar sua conta.");
   }
 
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="su-name">Display name</Label>
-        <Input id="su-name" required value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+        <Label htmlFor="su-name">Nome de exibição</Label>
+        <Input
+          id="su-name"
+          required
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+        />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="su-email">Email</Label>
-        <Input id="su-email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Label htmlFor="su-email">E-mail</Label>
+        <Input
+          id="su-email"
+          type="email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="su-password">Password</Label>
-        <Input id="su-password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
-        <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+        <Label htmlFor="su-password">Senha</Label>
+        <Input
+          id="su-password"
+          type="password"
+          autoComplete="new-password"
+          minLength={8}
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">Pelo menos 8 caracteres.</p>
       </div>
       <Button type="submit" className="w-full" disabled={busy}>
         {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-        Create account
+        Criar conta
       </Button>
     </form>
   );
@@ -195,7 +234,7 @@ function GoogleButton() {
     });
     if (result.error) {
       setBusy(false);
-      toast.error(result.error.message ?? "Google sign-in failed");
+      toast.error(result.error.message ?? "Falha ao entrar com o Google");
       return;
     }
     if (result.redirected) return;
@@ -204,12 +243,17 @@ function GoogleButton() {
   }
   return (
     <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={onClick}>
-      {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (
+      {busy ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden>
-          <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.3 0-6-2.74-6-6.1s2.7-6.1 6-6.1c1.88 0 3.14.8 3.86 1.48l2.63-2.54C16.84 3.4 14.66 2.4 12 2.4 6.92 2.4 2.8 6.52 2.8 11.6S6.92 20.8 12 20.8c6.92 0 9.2-4.86 9.2-7.32 0-.5-.06-.86-.13-1.28H12z"/>
+          <path
+            fill="#EA4335"
+            d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.3 0-6-2.74-6-6.1s2.7-6.1 6-6.1c1.88 0 3.14.8 3.86 1.48l2.63-2.54C16.84 3.4 14.66 2.4 12 2.4 6.92 2.4 2.8 6.52 2.8 11.6S6.92 20.8 12 20.8c6.92 0 9.2-4.86 9.2-7.32 0-.5-.06-.86-.13-1.28H12z"
+          />
         </svg>
       )}
-      Continue with Google
+      Continuar com Google
     </Button>
   );
 }

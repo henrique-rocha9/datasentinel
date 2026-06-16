@@ -15,14 +15,14 @@ import { useAuth } from "@/hooks/use-auth";
 const PRIMARY = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/ranking", label: "Ranking", icon: ListOrdered },
-  { to: "/investigations", label: "Investigations", icon: Search },
+  { to: "/investigations", label: "Investigações", icon: Search },
 ] as const;
 
 const ADMIN = [
-  { to: "/admin/ingestion", label: "Ingestion", icon: Database },
-  { to: "/admin/ml", label: "ML runs", icon: Sparkles },
-  { to: "/admin/logs", label: "System logs", icon: ScrollText },
-  { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/admin/ingestion", label: "Ingestão", icon: Database },
+  { to: "/admin/ml", label: "Execuções de ML", icon: Sparkles },
+  { to: "/admin/logs", label: "Logs do sistema", icon: ScrollText },
+  { to: "/admin/users", label: "Usuários", icon: Users },
 ] as const;
 
 export function SidebarNav() {
@@ -59,7 +59,9 @@ export function SidebarNav() {
                 key={to}
                 to={to}
                 activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }}
-                inactiveProps={{ className: "text-sidebar-foreground/80 hover:bg-sidebar-accent/40" }}
+                inactiveProps={{
+                  className: "text-sidebar-foreground/80 hover:bg-sidebar-accent/40",
+                }}
                 className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
               >
                 <Icon className="h-4 w-4" />

@@ -13,7 +13,7 @@ import { fmtDate } from "@/lib/risk";
 
 export const Route = createFileRoute("/_authenticated/admin/logs")({
   head: () => ({
-    meta: [{ title: "System Logs — Datasentinel" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Logs do sistema — Datasentinel" }, { name: "robots", content: "noindex" }],
   }),
   component: LogsPage,
 });
@@ -44,11 +44,15 @@ function LogsPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Admin" title="System logs" description="Audit trail of system actions." />
+      <PageHeader
+        eyebrow="Admin"
+        title="Logs do sistema"
+        description="Trilha de auditoria de ações do sistema."
+      />
       <div className="space-y-4 px-6 py-6">
         <div className="flex flex-wrap items-center gap-3">
           <Input
-            placeholder="Filter by action…"
+            placeholder="Filtrar por ação…"
             value={filter}
             onChange={(e) => {
               setPage(0);
@@ -57,8 +61,13 @@ function LogsPage() {
             className="max-w-xs"
           />
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-              Prev
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Anterior
             </Button>
             <span className="font-mono text-xs text-muted-foreground">
               {page + 1} / {pages}
@@ -69,7 +78,7 @@ function LogsPage() {
               disabled={page + 1 >= pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              Próxima
             </Button>
           </div>
         </div>
@@ -80,17 +89,17 @@ function LogsPage() {
                 <TableSkeleton rows={8} columns={5} />
               </div>
             ) : !data?.rows.length ? (
-              <EmptyState title="No logs" />
+              <EmptyState title="Nenhum log" />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-2">When</th>
-                      <th className="px-4 py-2">Action</th>
-                      <th className="px-4 py-2">Entity</th>
-                      <th className="px-4 py-2">Actor</th>
-                      <th className="px-4 py-2">Metadata</th>
+                      <th className="px-4 py-2">Quando</th>
+                      <th className="px-4 py-2">Ação</th>
+                      <th className="px-4 py-2">Entidade</th>
+                      <th className="px-4 py-2">Autor</th>
+                      <th className="px-4 py-2">Metadados</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -104,7 +113,7 @@ function LogsPage() {
                           {l.entity_type ? `${l.entity_type}#${l.entity_id ?? "—"}` : "—"}
                         </td>
                         <td className="px-4 py-2 font-mono text-[11px] text-muted-foreground">
-                          {l.actor_id?.slice(0, 8) ?? "system"}
+                          {l.actor_id?.slice(0, 8) ?? "sistema"}
                         </td>
                         <td className="px-4 py-2 font-mono text-[11px] text-muted-foreground">
                           {l.metadata ? JSON.stringify(l.metadata).slice(0, 80) : "—"}
